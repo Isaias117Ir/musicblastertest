@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 // --- CONFIGURACIÓN GEMINI API ---
-const apiKey = ""; // La clave se inyectará en tiempo de ejecución
+const apiKey = "AIzaSyCQ0xvdX16Z6Rd12G2gyLvoBXTrb-qOKuE"; // La clave se inyectará en tiempo de ejecución
 
 // --- DATOS Y CONSTANTES ---
 const COLORS = {
