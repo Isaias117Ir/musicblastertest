@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Music Blaster Ultimate V10.1</string>
+    <string name="title_activity_main">Music Blaster Ultimate V10.1</string>
+    <string name="package_name">com.isaia.musicblaster</string>
+    <string name="custom_url_scheme">com.isaia.musicblaster</string>
+</resources>
