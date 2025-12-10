@@ -4,7 +4,7 @@ import {
   Skull, MousePointer2, Bomb, Activity, Triangle, Hexagon, X, Smile, Divide,
   Code2, Globe, Rocket, Gem, Disc, Clock, Settings, Cookie, Atom, Biohazard,
   User, Plus, Trash2, LogOut, Bot, MessageSquare, Trophy, Medal, Crown, Star,
-  Target, ZapOff, Shield, Gift, Mic, MicOff
+  Target, ZapOff, Shield, Gift, Mic, MicOff, BookOpen
 } from 'lucide-react';
 
 // --- CONFIGURACIÓN GEMINI API ---
@@ -1311,451 +1311,679 @@ export default function App() {
 
       {/* --- PANTALLAS --- */}
       {screen === 'intro' && (
-        <div className="full-screen-menu">
-          <h1 style={{ fontSize: '40px', color: 'var(--neon-blue)', textShadow: '0 0 20px var(--neon-blue)', textAlign: 'center', lineHeight: '1.5' }}>MUSIC<br />BLASTER</h1>
-          <button className="menu-btn" style={{ borderColor: '#ffcc00', color: '#ffcc00' }} onClick={(e) => handleButtonClick(e, () => { initAudio(); setScreen('initial'); })}>INICIAR</button>
-          <p style={{ fontSize: '10px', color: '#aaa', marginTop: '20px' }}>v18.1 Mic Sustain Fix</p>
+        <div className="full-screen-menu relative z-10">
+          <div className="crystal-panel p-16 flex flex-col items-center gap-6 animate-float">
+            <h1 className="text-7xl font-black text-center tracking-tighter" style={{ fontFamily: 'var(--font-gaming)', color: '#fff' }}>
+              <span className="neon-text-blue">MUSIC</span><br />
+              <span className="neon-text-pink">BLASTER</span>
+            </h1>
+            <div className="text-xs text-gray-400 tracking-[1em] uppercase mb-8">Ultimate Edition</div>
+
+            <button
+              className="btn-gaming w-full max-w-xs text-xl"
+              onClick={(e) => handleButtonClick(e, () => { initAudio(); setScreen('initial'); })}
+            >
+              INITIALIZE SYSTEM
+            </button>
+            <p className="text-[10px] text-gray-600 font-mono mt-8">v19.0 SYSTEM.READY</p>
+          </div>
         </div>
       )}
 
 
       {screen === 'initial' && (
-        <div className="full-screen-menu">
-          <h1 style={{ fontSize: '18px', marginBottom: '30px', color: '#fff', textShadow: '0 0 10px #fff' }}>VISUALIZACIÓN</h1>
-          <button className="menu-btn" style={{ borderColor: '#aaa', color: '#aaa' }} onClick={(e) => handleButtonClick(e, () => { setColorMode(false); setScreen('modeSelect'); })}>MODO PRO 😎🎶 (B/N)</button>
-          <button className="menu-btn" style={{ borderColor: '#ffcc00', color: '#ffcc00' }} onClick={(e) => handleButtonClick(e, () => { setColorMode(true); setScreen('modeSelect'); })}>MODO NOOB 😋🎶 (COLORES)</button>
+        <div className="full-screen-menu z-20">
+          <div className="flex flex-col gap-8 items-center bg-black/50 p-12 rounded-3xl backdrop-blur-md border border-white/10 shadow-2xl">
+            <h1 className="text-2xl text-white font-bold tracking-widest border-b border-white/20 pb-4 mb-4 uppercase">System Visuals</h1>
+
+            <button
+              className="btn-gaming w-80 h-24 flex flex-col items-center justify-center gap-2 group"
+              onClick={(e) => handleButtonClick(e, () => { setColorMode(false); setScreen('modeSelect'); })}
+            >
+              <span className="text-lg group-hover:text-black">PRO MODE</span>
+              <span className="text-[10px] text-gray-400 group-hover:text-black/70">B&W • CLEAN • FAST</span>
+            </button>
+
+            <button
+              className="btn-gaming-secondary w-80 h-24 flex flex-col items-center justify-center gap-2 group"
+              style={{ borderColor: 'var(--accent-neon)', color: 'var(--accent-neon)' }}
+              onClick={(e) => handleButtonClick(e, () => { setColorMode(true); setScreen('modeSelect'); })}
+            >
+              <span className="text-lg group-hover:text-black">NEON MODE</span>
+              <span className="text-[10px] text-gray-400 group-hover:text-black/70">COLOR • EFFECTS • VIBRANT</span>
+            </button>
+          </div>
         </div>
       )}
 
       {screen === 'profiles' && (
-        <div className="full-screen-menu" style={{ background: 'rgba(0,0,0,0.9)' }}>
-          <h1 style={{ fontSize: '18px', marginBottom: '20px', color: '#fff' }}>SELECCIONAR PERFIL</h1>
+        <div className="full-screen-menu z-20">
+          <div className="w-full max-w-2xl p-6 bg-black/90 backdrop-blur-xl rounded-2xl border border-blue-500/30 shadow-2xl">
+            <h1 className="text-3xl font-black text-center mb-8 text-blue-400 tracking-widest uppercase">SELECT PROFILE</h1>
 
-          <div className="scroll-area" style={{ maxHeight: '30vh' }}>
-            <div className="custom-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-h-[50vh] overflow-y-auto">
               {Object.entries(profiles).map(([id, p]) => (
-                <div key={id} className={`custom-item ${activeProfileId === id ? 'selected' : ''}`}
+                <div key={id}
+                  className={`relative p-4 rounded-lg border transition-all cursor-pointer group
+                    ${activeProfileId === id ? 'bg-blue-500/20 border-blue-400' : 'bg-white/5 border-gray-700 hover:border-gray-500'}
+                  `}
                   onClick={() => handleSwitchProfile(id)}
-                  style={{ position: 'relative' }}>
-                  <span style={{ fontSize: '12px' }}>{p.name}</span>
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-full ${activeProfileId === id ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-500'}`}>
+                      <User size={20} />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white">{p.name}</div>
+                      <div className="text-[10px] text-gray-400">LVL {p.maxLevelNoob}/{p.maxLevelPro}</div>
+                    </div>
+                  </div>
+
                   {id !== 'guest' && (
-                    <button style={{ position: 'absolute', top: 5, right: 5, background: 'none', border: 'none', color: '#f00' }}
+                    <button className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 p-1 rounded"
                       onClick={(e) => handleDeleteProfile(id, e)}>
-                      <Trash2 size={12} />
+                      <Trash2 size={14} />
                     </button>
                   )}
-                  <span style={{ fontSize: '8px', color: '#aaa', marginTop: 5 }}>Nvl: {p.maxLevelNoob}/{p.maxLevelPro}</span>
                 </div>
               ))}
             </div>
-          </div>
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-            <input type="text"
-              placeholder="Nombre Nuevo..."
-              value={newProfileName}
-              onChange={(e) => setNewProfileName(e.target.value)}
-              style={{ padding: 10, borderRadius: 5, border: 'none', background: '#fff', color: '#000', fontFamily: 'inherit' }}
-            />
-            <button className="menu-btn" style={{ width: 'auto', padding: '10px' }} onClick={handleCreateProfile}><Plus size={16} /></button>
-          </div>
+            <div className="flex gap-2 mb-8">
+              <input
+                type="text"
+                placeholder="NEW AGENT NAME..."
+                value={newProfileName}
+                onChange={(e) => setNewProfileName(e.target.value)}
+                className="flex-1 bg-black/50 border border-gray-600 rounded px-4 py-2 text-white focus:border-blue-500 outline-none"
+              />
+              <button
+                className="btn-gaming-secondary py-2 px-6"
+                onClick={handleCreateProfile}
+              >
+                <Plus size={20} />
+              </button>
+            </div>
 
-          <div style={{ display: 'flex', gap: 10, width: '100%', justifyContent: 'center', marginTop: 20 }}>
-            <button className="menu-btn" style={{ width: 'auto', borderColor: '#ffd700', color: '#ffd700', fontSize: '10px' }} onClick={(e) => handleButtonClick(e, () => setScreen('achievements'))}>
-              <Trophy size={14} /> MIS LOGROS
-            </button>
-          </div>
+            <div className="flex justify-between items-center border-t border-gray-800 pt-6">
+              <button className="text-yellow-400 flex items-center gap-2 hover:text-yellow-300 transition-colors"
+                onClick={(e) => handleButtonClick(e, () => setScreen('achievements'))}
+              >
+                <Trophy size={16} /> VIEW ACHIEVEMENTS
+              </button>
 
-          <button className="menu-btn" style={{ borderColor: '#555', color: '#aaa', marginTop: '20px', width: '200px' }}
-            onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
+              <button className="text-gray-500 hover:text-white uppercase tracking-widest text-sm"
+                onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}
+              >
+                RETURN
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
       {screen === 'achievements' && (
-        <div className="full-screen-menu" style={{ background: 'rgba(0,0,0,0.9)' }}>
-          <h1 style={{ fontSize: '18px', marginBottom: '20px', color: '#ffd700' }}>🏆 LOGROS</h1>
-          <div className="scroll-area">
-            <div className="custom-grid">
+        <div className="full-screen-menu z-20">
+          <div className="w-full max-w-5xl h-[80vh] flex flex-col p-6 bg-black/90 rounded-2xl border border-yellow-500/20">
+            <header className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-3xl font-black text-yellow-400 tracking-widest uppercase">ACHIEVEMENTS</h1>
+                <p className="text-xs text-gray-400 font-mono">HALL OF FAME</p>
+              </div>
+              <button className="text-gray-500 hover:text-white" onClick={(e) => handleButtonClick(e, () => setScreen('profiles'))}>
+                <X size={24} />
+              </button>
+            </header>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto custom-scrollbar pr-2">
               {ACHIEVEMENTS.map(ach => {
                 const isUnlocked = unlockedAchievements.includes(ach.id);
                 return (
-                  <div key={ach.id} className={`custom-item`} style={{ borderColor: isUnlocked ? '#ffd700' : '#333', opacity: isUnlocked ? 1 : 0.5 }}>
-                    <span style={{ fontSize: '24px' }}>{isUnlocked ? ach.icon : '🔒'}</span>
-                    <span style={{ fontSize: '10px', color: isUnlocked ? '#fff' : '#aaa' }}>{ach.name}</span>
-                    <span style={{ fontSize: '8px', color: '#aaa' }}>{ach.desc}</span>
+                  <div key={ach.id}
+                    className={`p-4 rounded-xl border flex flex-col items-center text-center gap-2 transition-all
+                      ${isUnlocked ? 'bg-yellow-900/10 border-yellow-500/50 text-white' : 'bg-black/40 border-gray-800 text-gray-600 grayscale'}
+                    `}
+                  >
+                    <div className="text-4xl filter drop-shadow-lg">{ach.icon}</div>
+                    <div className={`text-xs font-bold leading-tight ${isUnlocked ? 'text-yellow-200' : 'text-gray-600'}`}>{ach.name}</div>
+                    <div className="text-[10px] text-gray-500">{ach.desc}</div>
                   </div>
                 )
               })}
             </div>
           </div>
-          <button className="menu-btn" style={{ borderColor: '#fff', color: '#fff', marginTop: '20px', width: '200px' }} onClick={(e) => handleButtonClick(e, () => setScreen('profiles'))}>VOLVER</button>
         </div>
       )}
 
       {screen === 'leaderboard' && (
-        <div className="full-screen-menu" style={{ background: 'rgba(0,0,0,0.9)' }}>
-          <h1 style={{ fontSize: '18px', marginBottom: '20px', color: '#0f0' }}>🥇 LÍDERES</h1>
-          <div className="scroll-area">
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #333', color: '#aaa' }}>
-                  <th style={{ padding: 10 }}>#</th>
-                  <th style={{ padding: 10 }}>NOMBRE</th>
-                  <th style={{ padding: 10 }}>SCORE</th>
-                  <th style={{ padding: 10 }}>NVL</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.values(profiles).sort((a, b) => (b.highScore || 0) - (a.highScore || 0)).map((p, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #222', color: i === 0 ? '#ffd700' : i === 1 ? '#c0c0c0' : i === 2 ? '#cd7f32' : '#fff' }}>
-                    <td style={{ padding: 10, textAlign: 'center' }}>{i + 1}</td>
-                    <td style={{ padding: 10 }}>{p.name}</td>
-                    <td style={{ padding: 10, textAlign: 'center' }}>{p.highScore || 0}</td>
-                    <td style={{ padding: 10, textAlign: 'center' }}>{p.maxLevelNoob + p.maxLevelPro}</td>
+        <div className="full-screen-menu z-20">
+          <div className="w-full max-w-3xl p-8 bg-black/90 backdrop-blur-xl rounded-2xl border border-green-500/30">
+            <h1 className="text-3xl font-black text-center mb-8 text-green-400 tracking-widest uppercase">GLOBAL RANKING</h1>
+
+            <div className="overflow-hidden rounded-lg border border-gray-800 mb-8">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-900 text-gray-400 uppercase font-mono">
+                  <tr>
+                    <th className="p-4 text-center">#</th>
+                    <th className="p-4 text-left">AGENT</th>
+                    <th className="p-4 text-center">SCORE</th>
+                    <th className="p-4 text-center">LEVEL</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-800">
+                  {Object.values(profiles).sort((a, b) => (b.highScore || 0) - (a.highScore || 0)).map((p, i) => (
+                    <tr key={i} className={`text-gray-300 hover:bg-white/5 transition-colors
+                      ${i === 0 ? 'text-yellow-400 font-bold bg-yellow-400/5' : ''}
+                      ${i === 1 ? 'text-gray-300' : ''}
+                      ${i === 2 ? 'text-orange-400' : ''}
+                    `}>
+                      <td className="p-4 text-center font-mono opacity-50">{i + 1}</td>
+                      <td className="p-4">{p.name}</td>
+                      <td className="p-4 text-center font-mono text-green-400">{p.highScore || 0}</td>
+                      <td className="p-4 text-center font-mono text-blue-400">{p.maxLevelNoob + p.maxLevelPro}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="text-center">
+              <button
+                className="text-gray-500 hover:text-white uppercase tracking-widest text-sm"
+                onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}
+              >
+                CLOSE RANKING
+              </button>
+            </div>
           </div>
-          <button className="menu-btn" style={{ borderColor: '#fff', color: '#fff', marginTop: '20px', width: '200px' }} onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
         </div>
       )}
 
       {screen === 'modeSelect' && (
-        <div className="full-screen-menu">
-          <h1 style={{ fontSize: '22px', marginBottom: '30px', color: '#fff', textShadow: '0 0 10px #fff' }}>MODO DE JUEGO</h1>
+        <div className="full-screen-menu z-20">
+          <div className="w-full max-w-5xl p-4 flex flex-col items-center h-full justify-center">
+            <h1 className="text-4xl font-black mb-8 text-white tracking-[0.2em] uppercase neon-text-blue" style={{ fontFamily: 'var(--font-gaming)' }}>
+              MODE SELECT
+            </h1>
 
-          <div style={{ maxHeight: '60vh', overflowY: 'auto', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px' }}>
-            <button className="menu-btn" style={{ borderColor: '#0f0', color: '#0f0', marginBottom: 5 }} onClick={(e) => handleButtonClick(e, () => setScreen('levelSelect'))}>ARCADE</button>
-            <div style={{ fontSize: '9px', color: '#aaa', marginBottom: 15 }}>PROGRESO: {colorMode ? 'MODO NOOB' : 'MODO PRO'}</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 w-full mb-8">
+              {/* ARCADE */}
+              <div
+                className="crystal-panel p-6 cursor-pointer hover:bg-white/10 transition-all duration-300 group border-l-4 border-l-cyan-400 flex flex-col justify-between h-32"
+                onClick={(e) => handleButtonClick(e, () => setScreen('levelSelect'))}
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="text-2xl text-cyan-400 font-bold group-hover:scale-105 transition-transform tracking-wider">ARCADE</h3>
+                  <div className="text-cyan-400 opacity-50"><Monitor size={24} /></div>
+                </div>
+                <div className="text-xs text-gray-300 font-mono">
+                  PROGRESS: {colorMode ? 'NEON' : 'PRO'} // {colorMode ? maxLevelNoob : maxLevelPro}/20
+                </div>
+              </div>
 
-            <div style={{ fontSize: '9px', color: '#aaa', marginBottom: 15 }}>PROGRESO: {colorMode ? 'MODO NOOB' : 'MODO PRO'}</div>
+              {/* TRAINING */}
+              <div
+                className="crystal-panel p-6 cursor-pointer hover:bg-white/10 transition-all duration-300 group border-l-4 border-l-green-400 flex flex-col justify-between h-32"
+                onClick={(e) => handleButtonClick(e, () => {
+                  if (trainingConfig.selectedIndices.length === 0) {
+                    setTrainingConfig({ showTreble: true, showBass: false, selectedIndices: [0, 1, 2, 3, 4, 5, 6] });
+                  }
+                  setScreen('trainingSetup');
+                })}
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="text-2xl text-green-400 font-bold group-hover:scale-105 transition-transform tracking-wider">TRAINING</h3>
+                  <div className="text-green-400 opacity-50"><BookOpen size={24} /></div>
+                </div>
+                <div className="text-xs text-gray-300 font-mono">PRACTICE • FREE PLAY</div>
+              </div>
 
-            <button className="menu-btn" style={{ borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => {
-              // Reset training config default if empty needed, or keep previous
-              if (trainingConfig.selectedIndices.length === 0) {
-                // Pre-select C Major Treble by default to be nice
-                setTrainingConfig({ showTreble: true, showBass: false, selectedIndices: [0, 1, 2, 3, 4, 5, 6] });
-              }
-              setScreen('trainingSetup');
-            })}>ENTRENAMIENTO 🎓</button>
+              {/* SURVIVAL */}
+              <div
+                className="crystal-panel p-6 cursor-pointer hover:bg-white/10 transition-all duration-300 group border-l-4 border-l-red-500 flex flex-col justify-between h-32"
+                onClick={(e) => handleButtonClick(e, () => { setGameMode('survival'); setScreen('game'); setGameState('ready'); })}
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="text-2xl text-red-500 font-bold group-hover:scale-105 transition-transform tracking-wider">SURVIVAL</h3>
+                  <div className="text-red-500 opacity-50"><Heart size={24} /></div>
+                </div>
+                <div className="text-xs text-gray-300 font-mono">1 LIFE • ENDLESS</div>
+              </div>
 
-            <button className="menu-btn" style={{ borderColor: '#f00', color: '#f00' }} onClick={(e) => handleButtonClick(e, () => { setGameMode('survival'); setScreen('game'); setGameState('ready'); })}>SUPERVIVENCIA</button>
-            <button className="menu-btn" style={{ borderColor: '#0ff', color: '#0ff' }} onClick={(e) => handleButtonClick(e, () => { setGameMode('sayoya'); setScreen('game'); setGameState('ready'); })}>RETO SAYOYA</button>
-            <div style={{ borderTop: '2px solid #333', width: '80%', margin: '15px 0' }}></div>
-
-            <div style={{ display: 'flex', gap: 10, width: window.innerWidth > 768 ? '350px' : '90%' }}>
-              <button className="menu-btn" style={{ borderColor: '#ff0', color: '#ff0', flex: 1 }} onClick={(e) => handleButtonClick(e, () => setScreen('store'))}>TIENDA</button>
-              <button className="menu-btn" style={{ borderColor: '#0f0', color: '#0f0', flex: 1 }} onClick={(e) => handleButtonClick(e, () => setScreen('leaderboard'))}>RANKING</button>
+              {/* SAYOYA */}
+              <div
+                className="crystal-panel p-6 cursor-pointer hover:bg-white/10 transition-all duration-300 group border-l-4 border-l-purple-500 flex flex-col justify-between h-32"
+                onClick={(e) => handleButtonClick(e, () => { setGameMode('sayoya'); setScreen('game'); setGameState('ready'); })}
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="text-2xl text-purple-500 font-bold group-hover:scale-105 transition-transform tracking-wider">SPEEDRUN</h3>
+                  <div className="text-purple-500 opacity-50"><Zap size={24} /></div>
+                </div>
+                <div className="text-xs text-gray-300 font-mono">RACE AGAINST TIME</div>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10, width: window.innerWidth > 768 ? '350px' : '90%', marginTop: 10 }}>
-              <button className="menu-btn" style={{ borderColor: '#b0f', color: '#b0f', flex: 1 }} onClick={(e) => handleButtonClick(e, () => setScreen('customize'))}>🎒</button>
-              <button className="menu-btn" style={{ borderColor: '#fff', color: '#fff', flex: 1 }} onClick={(e) => handleButtonClick(e, () => setScreen('profiles'))}>👤 PERFILES</button>
+            <div className="grid grid-cols-4 gap-4 w-full">
+              <button className="btn-gaming text-sm py-4 flex flex-col items-center gap-2 border-yellow-400 text-yellow-400" onClick={(e) => handleButtonClick(e, () => setScreen('store'))}>
+                <span className="text-lg">STORE</span>
+              </button>
+              <button className="btn-gaming text-sm py-4 flex flex-col items-center gap-2 border-orange-400 text-orange-400" onClick={(e) => handleButtonClick(e, () => setScreen('leaderboard'))}>
+                <span className="text-lg">RANK</span>
+              </button>
+              <button className="btn-gaming-secondary text-sm py-4 flex flex-col items-center gap-2" onClick={(e) => handleButtonClick(e, () => setScreen('customize'))}>
+                <span className="text-lg">GEAR</span>
+              </button>
+              <button className="btn-gaming-secondary text-sm py-4 flex flex-col items-center gap-2 border-blue-400 text-blue-400" onClick={(e) => handleButtonClick(e, () => setScreen('profiles'))}>
+                <span className="text-lg">USER</span>
+              </button>
             </div>
+
+            <button
+              className="mt-8 text-xs text-gray-500 hover:text-white transition-colors tracking-widest uppercase font-mono"
+              onClick={(e) => handleButtonClick(e, () => setScreen('initial'))}
+            >
+              [ Return to Visual Settings ]
+            </button>
           </div>
-          <button className="menu-btn" style={{ borderColor: '#555', color: '#aaa', marginTop: '15px' }} onClick={(e) => handleButtonClick(e, () => setScreen('initial'))}>VOLVER</button>
         </div>
       )}
 
       {screen === 'levelSelect' && (
-        <div className="full-screen-menu">
-          <h1 style={{ fontSize: '18px', marginBottom: '5px' }}>SELECCIONA NIVEL</h1>
-          <h2 style={{ fontSize: '10px', marginBottom: '15px', color: colorMode ? '#ffcc00' : '#aaa' }}>
-            {colorMode ? 'RUTA: MODO NOOB (COLOR)' : 'RUTA: MODO PRO (B/N)'}
-          </h2>
+        <div className="full-screen-menu z-20">
+          <div className="w-full max-w-4xl p-4 flex flex-col items-center h-full">
+            <h1 className="text-3xl font-black mb-2 text-white tracking-[0.2em] uppercase neon-text-blue">SELECT LEVEL</h1>
+            <h2 className="text-xs mb-6 text-gray-400 font-mono tracking-widest">
+              PATH: {colorMode ? <span className="text-yellow-400">NEON (NOOB)</span> : <span className="text-white">CLASSIC (PRO)</span>}
+            </h2>
 
-          <div className="custom-grid" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '10px', width: '90%' }}>
-            {Array.from({ length: 20 }).map((_, i) => { // Increased to 20 levels
-              const lvlNum = i + 1;
-              // Check lock status based on current colorMode
-              const currentMax = colorMode ? maxLevelNoob : maxLevelPro;
-              const locked = currentMax < lvlNum;
-              const isBass = lvlNum > 10;
+            <div className="grid grid-cols-4 md:grid-cols-5 gap-4 w-full overflow-y-auto pr-2 custom-scrollbar" style={{ maxHeight: '70vh' }}>
+              {Array.from({ length: 20 }).map((_, i) => {
+                const lvlNum = i + 1;
+                const currentMax = colorMode ? maxLevelNoob : maxLevelPro;
+                const locked = currentMax < lvlNum;
+                const isBass = lvlNum > 10;
 
-              return (
-                <div key={lvlNum}
-                  onClick={() => { if (!locked) { setGameMode('arcade'); setLevel(lvlNum); setScreen('game'); setGameState('ready'); } }}
-                  className={`custom-item ${!locked ? 'unlocked' : ''}`}
-                  style={{ background: locked ? '#222' : (isBass ? '#2c0b0e' : '#000'), opacity: locked ? 0.5 : 1 }}>
-                  NIVEL {lvlNum}<br />
-                  <span style={{ fontSize: '8px', color: '#aaa' }}>{isBass ? '(Clave Fa)' : '(Clave Sol)'}</span><br />
-                  {locked ? '🔒' : 'JUGAR'}
-                </div>
-              )
-            })}
+                return (
+                  <div key={lvlNum}
+                    onClick={() => { if (!locked) { setGameMode('arcade'); setLevel(lvlNum); setScreen('game'); setGameState('ready'); } }}
+                    className={`crystal-panel p-4 flex flex-col items-center justify-center gap-2 aspect-square cursor-pointer transition-all duration-300 group
+                      ${locked ? 'opacity-40 grayscale' : 'hover:scale-105 hover:bg-white/10 hover:border-cyan-400'}
+                      ${isBass ? 'border-red-900/50' : ''}
+                    `}
+                  >
+                    <div className={`text-2xl font-black ${locked ? 'text-gray-600' : (isBass ? 'text-red-400' : 'text-cyan-400')}`}>
+                      {lvlNum}
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono uppercase text-center leading-tight">
+                      {isBass ? 'BASS CLEF' : 'TREBLE CLEF'}
+                    </div>
+                    <div className="text-lg">
+                      {locked ? '🔒' : <span className="group-hover:text-white text-transparent transition-colors">▶</span>}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button
+              className="mt-6 text-sm text-gray-400 hover:text-white uppercase tracking-widest border-b border-transparent hover:border-white transition-all pb-1"
+              onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}
+            >
+              Back to Menu
+            </button>
           </div>
-          <button className="menu-btn" style={{ marginTop: '20px', width: '200px', borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
         </div>
       )}
 
       {screen === 'trainingSetup' && (
-        <div className="full-screen-menu" style={{ background: 'rgba(0,0,0,0.95)' }}>
-          <h1 style={{ fontSize: '18px', marginBottom: '10px', color: '#fff' }}>ENTRENAMIENTO</h1>
-          <p style={{ fontSize: '10px', color: '#aaa', marginBottom: '20px' }}>Selecciona las notas a practicar (Mezcla claves si quieres).</p>
+        <div className="full-screen-menu z-20 bg-black/95">
+          <div className="w-full max-w-5xl h-full flex flex-col p-6 overflow-hidden">
+            <header className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-3xl font-black text-green-400 tracking-widest uppercase">TRAINING FACILITY</h1>
+                <p className="text-xs text-gray-400 font-mono">SELECT TARGET NOTES FOR SIMULATION</p>
+              </div>
+              <button className="text-gray-500 hover:text-white" onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>
+                <X size={24} />
+              </button>
+            </header>
 
-          {/* CLEF VISIBILITY TOGGLES */}
-          <div style={{ display: 'flex', gap: 20, marginBottom: 10 }}>
-            <button
-              className="menu-btn"
-              style={{
-                width: '120px', padding: '10px', fontSize: '12px',
-                borderColor: trainingConfig.showTreble ? '#0f0' : '#555',
-                color: trainingConfig.showTreble ? '#0f0' : '#555',
-                opacity: trainingConfig.showTreble ? 1 : 0.6
-              }}
-              onClick={() => setTrainingConfig(prev => ({ ...prev, showTreble: !prev.showTreble }))}
-            >
-              SOL 𝄞 {trainingConfig.showTreble ? 'ON' : 'OFF'}
-            </button>
-            <button
-              className="menu-btn"
-              style={{
-                width: '120px', padding: '10px', fontSize: '12px',
-                borderColor: trainingConfig.showBass ? '#0f0' : '#555',
-                color: trainingConfig.showBass ? '#0f0' : '#555',
-                opacity: trainingConfig.showBass ? 1 : 0.6
-              }}
-              onClick={() => setTrainingConfig(prev => ({ ...prev, showBass: !prev.showBass }))}
-            >
-              FA 𝄢 {trainingConfig.showBass ? 'ON' : 'OFF'}
-            </button>
-          </div>
+            <div className="flex gap-4 mb-6">
+              <button
+                className={`flex-1 p-4 border rounded-lg transition-all flex items-center justify-center gap-3
+                  ${trainingConfig.showTreble ? 'border-green-400 bg-green-900/20 text-green-400' : 'border-gray-700 text-gray-600'}`}
+                onClick={() => setTrainingConfig(prev => ({ ...prev, showTreble: !prev.showTreble }))}
+              >
+                <span className="text-2xl">𝄞</span> <span className="font-bold">TREBLE CLEF</span>
+              </button>
+              <button
+                className={`flex-1 p-4 border rounded-lg transition-all flex items-center justify-center gap-3
+                  ${trainingConfig.showBass ? 'border-green-400 bg-green-900/20 text-green-400' : 'border-gray-700 text-gray-600'}`}
+                onClick={() => setTrainingConfig(prev => ({ ...prev, showBass: !prev.showBass }))}
+              >
+                <span className="text-2xl">𝄢</span> <span className="font-bold">BASS CLEF</span>
+              </button>
+            </div>
 
-          {/* NOTE SELECTOR GRID */}
-          <div className="scroll-area" style={{ maxHeight: '50vh', width: '90%' }}>
-
-            {/* TREBLE SECTION */}
-            {trainingConfig.showTreble && (
-              <>
-                <div style={{ fontSize: '12px', color: '#0f0', margin: '10px 0', borderBottom: '1px solid #333' }}>CLAVE DE SOL</div>
-                <div className="custom-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                  {NOTES_DATA.map((n, idx) => {
-                    if (n.clef !== 'treble') return null;
-                    const isSelected = trainingConfig.selectedIndices.includes(idx);
-
-                    const getLabel = () => {
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              {/* TREBLE NOTES */}
+              {trainingConfig.showTreble && (
+                <div className="mb-8">
+                  <h3 className="text-green-400 text-xs font-bold mb-4 border-b border-green-900/50 pb-2">TREBLE CLEF OCTAVES</h3>
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                    {NOTES_DATA.map((n, idx) => {
+                      if (n.clef !== 'treble') return null;
+                      const isSelected = trainingConfig.selectedIndices.includes(idx);
                       const base = n.noteBase || n.note.charAt(0);
                       const map = { 'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si' };
-                      let octave = '';
-                      // Treble: C-B (4), C2-G2 (5)
-                      if (idx <= 6) octave = '4'; else octave = '5';
-                      return `${map[base]} ${octave}`;
-                    };
+                      const octave = idx <= 6 ? '4' : '5';
 
-                    return (
-                      <div key={idx} className={`custom-item ${isSelected ? 'selected' : ''}`}
-                        style={{ borderColor: isSelected ? '#0f0' : '#555', opacity: isSelected ? 1 : 0.6 }}
-                        onClick={() => {
-                          setTrainingConfig(prev => {
-                            const newIndices = prev.selectedIndices.includes(idx) ? prev.selectedIndices.filter(i => i !== idx) : [...prev.selectedIndices, idx];
-                            return { ...prev, selectedIndices: newIndices };
-                          });
-                        }}>
-                        <span>{getLabel()}</span>
-                        <span style={{ fontSize: '8px', color: '#aaa' }}>{n.note}</span>
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div key={idx}
+                          className={`h-16 border rounded cursor-pointer flex flex-col items-center justify-center transition-all duration-200
+                             ${isSelected ? 'bg-green-500 text-black border-green-400 shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-transparent border-gray-700 text-gray-500 hover:border-gray-500'}
+                           `}
+                          onClick={() => {
+                            setTrainingConfig(prev => {
+                              const newIndices = prev.selectedIndices.includes(idx) ? prev.selectedIndices.filter(i => i !== idx) : [...prev.selectedIndices, idx];
+                              return { ...prev, selectedIndices: newIndices };
+                            });
+                          }}>
+                          <span className="font-bold text-sm">{map[base]}{octave}</span>
+                          <span className="text-[10px] opacity-70">{base}{octave}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </>
-            )}
+              )}
 
-            {/* BASS SECTION */}
-            {trainingConfig.showBass && (
-              <>
-                <div style={{ fontSize: '12px', color: '#0f0', margin: '20px 0 10px 0', borderBottom: '1px solid #333' }}>CLAVE DE FA</div>
-                <div className="custom-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                  {NOTES_DATA.map((n, idx) => {
-                    if (n.clef !== 'bass') return null;
-                    const isSelected = trainingConfig.selectedIndices.includes(idx);
-
-                    const getLabel = () => {
+              {/* BASS NOTES */}
+              {trainingConfig.showBass && (
+                <div className="mb-8">
+                  <h3 className="text-green-400 text-xs font-bold mb-4 border-b border-green-900/50 pb-2">BASS CLEF OCTAVES</h3>
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                    {NOTES_DATA.map((n, idx) => {
+                      if (n.clef !== 'bass') return null;
+                      const isSelected = trainingConfig.selectedIndices.includes(idx);
                       const base = n.noteBase || n.note.charAt(0);
                       const map = { 'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si' };
-                      // Bass: E2-B2 (2), C3-B3 (3)
-                      let octave = '';
-                      if (n.note.includes('2')) octave = '2';
-                      else if (n.note.includes('3')) octave = '3';
-                      return `${map[base]} ${octave}`;
-                    };
+                      let octave = n.note.includes('2') ? '2' : '3';
 
-                    return (
-                      <div key={idx} className={`custom-item ${isSelected ? 'selected' : ''}`}
-                        style={{ borderColor: isSelected ? '#0f0' : '#555', opacity: isSelected ? 1 : 0.6 }}
-                        onClick={() => {
-                          setTrainingConfig(prev => {
-                            const newIndices = prev.selectedIndices.includes(idx) ? prev.selectedIndices.filter(i => i !== idx) : [...prev.selectedIndices, idx];
-                            return { ...prev, selectedIndices: newIndices };
-                          });
-                        }}>
-                        <span>{getLabel()}</span>
-                        <span style={{ fontSize: '8px', color: '#aaa' }}>{n.note}</span>
-                      </div>
-                    );
-                  })}
+                      return (
+                        <div key={idx}
+                          className={`h-16 border rounded cursor-pointer flex flex-col items-center justify-center transition-all duration-200
+                             ${isSelected ? 'bg-green-500 text-black border-green-400 shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-transparent border-gray-700 text-gray-500 hover:border-gray-500'}
+                           `}
+                          onClick={() => {
+                            setTrainingConfig(prev => {
+                              const newIndices = prev.selectedIndices.includes(idx) ? prev.selectedIndices.filter(i => i !== idx) : [...prev.selectedIndices, idx];
+                              return { ...prev, selectedIndices: newIndices };
+                            });
+                          }}>
+                          <span className="font-bold text-sm">{map[base]}{octave}</span>
+                          <span className="text-[10px] opacity-70">{base}{octave}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </>
-            )}
+              )}
+            </div>
+
+            <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-800">
+              <div className="flex gap-4">
+                <button className="text-xs text-gray-400 hover:text-green-400"
+                  onClick={() => {
+                    let toAdd = [];
+                    if (trainingConfig.showTreble) toAdd = [...toAdd, ...NOTES_DATA.map((n, i) => n.clef === 'treble' ? i : -1).filter(i => i !== -1)];
+                    if (trainingConfig.showBass) toAdd = [...toAdd, ...NOTES_DATA.map((n, i) => n.clef === 'bass' ? i : -1).filter(i => i !== -1)];
+                    setTrainingConfig(prev => ({ ...prev, selectedIndices: [...new Set([...prev.selectedIndices, ...toAdd])] }));
+                  }}>
+                  SELECT ALL
+                </button>
+                <button className="text-xs text-gray-400 hover:text-red-400"
+                  onClick={() => setTrainingConfig(prev => ({ ...prev, selectedIndices: [] }))}>
+                  CLEAR SELECTION
+                </button>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  className={`btn-gaming w-48 ${trainingConfig.selectedIndices.length === 0 ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                  disabled={trainingConfig.selectedIndices.length === 0}
+                  onClick={(e) => {
+                    if (trainingConfig.selectedIndices.length > 0) {
+                      handleButtonClick(e, () => {
+                        setGameMode('entrenamiento');
+                        setScreen('game');
+                        setGameState('ready');
+                      });
+                    }
+                  }}
+                >
+                  START SESSION
+                </button>
+              </div>
+            </div>
           </div>
-
-          <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-            <button className="menu-btn" style={{ width: 'auto', padding: '10px', fontSize: '10px', borderColor: '#aaa', color: '#aaa' }}
-              onClick={() => {
-                // Select ALL visible
-                let toAdd = [];
-                if (trainingConfig.showTreble) toAdd = [...toAdd, ...NOTES_DATA.map((n, i) => n.clef === 'treble' ? i : -1).filter(i => i !== -1)];
-                if (trainingConfig.showBass) toAdd = [...toAdd, ...NOTES_DATA.map((n, i) => n.clef === 'bass' ? i : -1).filter(i => i !== -1)];
-
-                setTrainingConfig(prev => ({ ...prev, selectedIndices: [...new Set([...prev.selectedIndices, ...toAdd])] }));
-              }}>
-              TODAS (VISIBLES)
-            </button>
-            <button className="menu-btn" style={{ width: 'auto', padding: '10px', fontSize: '10px', borderColor: '#aaa', color: '#aaa' }}
-              onClick={() => setTrainingConfig(prev => ({ ...prev, selectedIndices: [] }))}>
-              BORRAR SELECCIÓN
-            </button>
-          </div>
-
-          <button
-            className="menu-btn"
-            style={{
-              marginTop: '20px',
-              borderColor: trainingConfig.selectedIndices.length > 0 ? '#ffcc00' : '#333',
-              color: trainingConfig.selectedIndices.length > 0 ? '#ffcc00' : '#333',
-              cursor: trainingConfig.selectedIndices.length > 0 ? 'pointer' : 'not-allowed'
-            }}
-            onClick={(e) => {
-              if (trainingConfig.selectedIndices.length > 0) {
-                handleButtonClick(e, () => {
-                  setGameMode('entrenamiento');
-                  setScreen('game');
-                  setGameState('ready');
-                });
-              }
-            }}
-          >
-            ¡COMENZAR!
-          </button>
-
-          <button className="menu-btn" style={{ marginTop: '10px', width: '200px', borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
         </div>
       )}
 
       {screen === 'store' && (
-        <div className="full-screen-menu" style={{ background: 'rgba(0,0,0,0.8)' }}>
-          <h1 style={{ fontSize: '18px', marginBottom: '15px', color: '#ff0' }}>TIENDA DE ÍTEMS</h1>
+        <div className="full-screen-menu z-20">
+          <div className="w-full max-w-5xl h-full flex flex-col p-6">
+            <header className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-3xl font-black text-yellow-400 tracking-widest uppercase">ITEM STORE</h1>
+                <p className="text-xs text-gray-400 font-mono">ENHANCE YOUR EXPERIENCE</p>
+              </div>
+              <div className="bg-black/50 px-4 py-2 rounded-full border border-yellow-500/50 flex items-center gap-2">
+                <span>🪙</span>
+                <span className="text-yellow-400 font-bold">{coins}</span>
+              </div>
+              <button className="text-gray-500 hover:text-white" onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>
+                <X size={24} />
+              </button>
+            </header>
 
-          {showStoreConfirm && (
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.9)', zIndex: 100, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-              <h2 style={{ color: 'gold', marginBottom: '20px' }}>¿COMPRAR?</h2>
-              <p style={{ marginBottom: '20px' }}>{showStoreConfirm.item.name}</p>
-              <p style={{ marginBottom: '20px', color: 'gold' }}>Precio: {showStoreConfirm.item.price} Monedas</p>
-              <button className="menu-btn" style={{ borderColor: 'gold', color: 'gold' }} onClick={(e) => handleButtonClick(e, () => buyItem(showStoreConfirm.type, showStoreConfirm.item))}>SI, COMPRAR</button>
-              <button className="menu-btn" style={{ marginTop: '10px', borderColor: '#aaa', color: '#aaa' }} onClick={(e) => handleButtonClick(e, () => setShowStoreConfirm(null))}>CANCELAR</button>
-            </div>
-          )}
-
-          <div className="scroll-area">
-            <div style={{ fontSize: '12px', color: '#ffcc00', margin: '15px 0', textShadow: '0 0 5px #ffcc00' }}>SKINS</div>
-            <div className="custom-grid">
-              {SKINS.map(s => {
-                const owned = ownedSkins.includes(s.id);
-                return (
-                  <div key={s.id} className={`custom-item ${owned ? 'owned' : 'locked'}`}
-                    onClick={() => handleStoreClick('skin', s)}>
-                    <span>{s.name}</span>
-                    {owned ? <span style={{ color: 'var(--neon-green)' }}>EN POSESIÓN</span> : <span className="price-tag">{s.price} 🪙</span>}
+            {/* CONFIRM MODAL */}
+            {showStoreConfirm && (
+              <div className="absolute inset-0 bg-black/90 flex items-center justify-center z-50 animate-fade-in backdrop-blur-sm">
+                <div className="crystal-panel p-8 flex flex-col items-center gap-6 max-w-sm w-full">
+                  <h2 className="text-2xl font-bold text-yellow-400">CONFIRM PURCHASE</h2>
+                  <div className="text-center">
+                    <div className="text-xl text-white mb-2">{showStoreConfirm.item.name}</div>
+                    <div className="text-lg text-yellow-400 font-mono">{showStoreConfirm.item.price} COINS</div>
                   </div>
-                )
-              })}
-            </div>
 
-            <div style={{ fontSize: '12px', color: '#ffcc00', margin: '15px 0', textShadow: '0 0 5px #ffcc00' }}>SONIDOS</div>
-            <div className="custom-grid">
-              {SOUNDS.map(s => {
-                const owned = ownedSounds.includes(s.id);
-                return (
-                  <div key={s.id} className={`custom-item ${owned ? 'owned' : 'locked'}`}
-                    onClick={() => handleStoreClick('sound', s)}>
-                    <span>{s.name}</span>
-                    {owned ? <span style={{ color: 'var(--neon-green)' }}>EN POSESIÓN</span> : <span className="price-tag">{s.price} 🪙</span>}
+                  <div className="flex gap-4 w-full">
+                    <button className="flex-1 btn-gaming text-sm bg-yellow-400/10 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
+                      onClick={(e) => handleButtonClick(e, () => buyItem(showStoreConfirm.type, showStoreConfirm.item))}>
+                      BUY
+                    </button>
+                    <button className="flex-1 border border-gray-600 text-gray-400 p-3 rounded hover:border-white hover:text-white transition-colors"
+                      onClick={(e) => handleButtonClick(e, () => setShowStoreConfirm(null))}>
+                      CANCEL
+                    </button>
                   </div>
-                )
-              })}
+                </div>
+              </div>
+            )}
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+              <h3 className="neon-text-pink text-sm font-bold mb-4 border-b border-pink-500/30 pb-2 mt-4">VISUAL SKINS</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mb-8">
+                {SKINS.map(s => {
+                  const owned = ownedSkins.includes(s.id);
+                  const isAesthetic = !owned;
+                  return (
+                    <div key={s.id}
+                      className={`crystal-panel p-3 aspect-square flex flex-col items-center justify-between cursor-pointer transition-all duration-300
+                         ${owned ? 'border-green-500/50 opacity-80' : 'border-pink-500/30 hover:border-pink-500 hover:scale-105 active:scale-95'}
+                       `}
+                      onClick={() => handleStoreClick('skin', s)}
+                    >
+                      <div className="text-3xl mt-2">🎨</div>
+                      <div className="text-xs font-bold text-center leading-tight">{s.name}</div>
+                      <div className={`text-[10px] px-2 py-1 rounded-full font-mono ${owned ? 'bg-green-900/50 text-green-400' : 'bg-yellow-900/50 text-yellow-400'}`}>
+                        {owned ? 'OWNED' : `${s.price} 🪙`}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <h3 className="neon-text-blue text-sm font-bold mb-4 border-b border-blue-500/30 pb-2">AUDIO PACKS</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mb-8">
+                {SOUNDS.map(s => {
+                  const owned = ownedSounds.includes(s.id);
+                  return (
+                    <div key={s.id}
+                      className={`crystal-panel p-3 aspect-square flex flex-col items-center justify-between cursor-pointer transition-all duration-300
+                         ${owned ? 'border-green-500/50 opacity-80' : 'border-blue-500/30 hover:border-blue-500 hover:scale-105 active:scale-95'}
+                       `}
+                      onClick={() => handleStoreClick('sound', s)}
+                    >
+                      <div className="text-3xl mt-2">🔊</div>
+                      <div className="text-xs font-bold text-center leading-tight">{s.name}</div>
+                      <div className={`text-[10px] px-2 py-1 rounded-full font-mono ${owned ? 'bg-green-900/50 text-green-400' : 'bg-yellow-900/50 text-yellow-400'}`}>
+                        {owned ? 'OWNED' : `${s.price} 🪙`}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
-          <button className="menu-btn" style={{ marginTop: '20px', width: '200px', borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
         </div>
       )}
 
       {screen === 'customize' && (
-        <div className="full-screen-menu" style={{ background: 'rgba(0,0,0,0.8)' }}>
-          <h1 style={{ fontSize: '18px', marginBottom: '15px', color: '#b0f' }}>MOCHILA Y FONDO</h1>
+        <div className="full-screen-menu z-20">
+          <div className="w-full max-w-5xl h-full flex flex-col p-6">
+            <header className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-3xl font-black text-purple-400 tracking-widest uppercase">GEAR & VISUALS</h1>
+                <p className="text-xs text-gray-400 font-mono">CUSTOMIZE YOUR EXPERIENCE</p>
+              </div>
+              <button className="text-gray-500 hover:text-white" onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>
+                <X size={24} />
+              </button>
+            </header>
 
-          <div className="scroll-area">
-            <div style={{ fontSize: '12px', color: '#fff', margin: '15px 0', textShadow: '0 0 5px #fff' }}>EFECTOS VISUALES</div>
-            <button className="menu-btn" style={{ borderColor: showParticles ? '#0f0' : '#f00', color: showParticles ? '#0f0' : '#f00', width: '100%', fontSize: '12px', padding: '10px' }} onClick={() => setShowParticles(!showParticles)}>
-              PARTÍCULAS: {showParticles ? 'SÍ' : 'NO'}
-            </button>
-
-            <div style={{ fontSize: '12px', color: '#fff', margin: '15px 0', textShadow: '0 0 5px #fff' }}>FONDOS (GRATIS)</div>
-            <div className="custom-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-              {WALLPAPERS.map(w => (
-                <div key={w.id}
-                  className={`custom-item ${currentWallpaper === w.id ? 'selected' : ''}`}
-                  style={{ fontSize: '8px', padding: '15px 5px' }}
-                  onClick={() => handleSelectWallpaper(w.id)}>
-                  {w.name}
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+              {/* PARTICLES */}
+              <div className="crystal-panel p-4 mb-8 flex justify-between items-center bg-purple-900/10 border-purple-500/30">
+                <div>
+                  <h3 className="text-white font-bold">PARTICLE EFFECTS</h3>
+                  <p className="text-xs text-gray-400">Enable high-performance visual particles</p>
                 </div>
-              ))}
-            </div>
+                <button
+                  className={`px-6 py-2 rounded font-bold transition-all border ${showParticles ? 'bg-green-500 text-black border-green-400' : 'bg-transparent text-gray-400 border-gray-600'}`}
+                  onClick={() => setShowParticles(!showParticles)}
+                >
+                  {showParticles ? 'ENABLED' : 'DISABLED'}
+                </button>
+              </div>
 
-            <div style={{ fontSize: '12px', color: '#ffcc00', margin: '15px 0', textShadow: '0 0 5px #ffcc00' }}>MIS SKINS</div>
-            <div className="custom-grid">
-              {SKINS.filter(s => ownedSkins.includes(s.id)).map(s => (
-                <div key={s.id} className={`custom-item ${currentSkin === s.id ? 'selected' : ''}`}
-                  onClick={() => handleSelectSkin(s)}>
-                  <span>{s.name}</span>
-                </div>
-              ))}
-            </div>
+              {/* WALLPAPERS */}
+              <h3 className="neon-text-blue text-sm font-bold mb-4 border-b border-blue-500/30 pb-2">HOLOGRAPHIC BACKGROUNDS</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                {WALLPAPERS.map(w => (
+                  <div key={w.id}
+                    className={`h-24 rounded-lg border cursor-pointer relative overflow-hidden group transition-all duration-300
+                        ${currentWallpaper === w.id ? 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.4)] transform scale-105' : 'border-gray-700 hover:border-gray-500'}
+                      `}
+                    onClick={() => handleSelectWallpaper(w.id)}
+                  >
+                    {/* Preview simulation */}
+                    <div className="absolute inset-0 opacity-50" style={{ cssText: w.css }}></div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1 text-[10px] text-center font-mono truncate">
+                      {w.name}
+                    </div>
+                    {currentWallpaper === w.id && <div className="absolute top-1 right-1 text-cyan-400"><Disc size={12} className="animate-spin" /></div>}
+                  </div>
+                ))}
+              </div>
 
-            <div style={{ fontSize: '12px', color: '#ffcc00', margin: '15px 0', textShadow: '0 0 5px #ffcc00' }}>MIS SONIDOS (CLICK PREVIEW)</div>
-            <div className="custom-grid">
-              {SOUNDS.filter(s => ownedSounds.includes(s.id)).map(s => (
-                <div key={s.id} className={`custom-item ${currentSound === s.id ? 'selected' : ''}`}
-                  onClick={() => handleSelectSound(s)}>
-                  <span>{s.name}</span>
+              {/* OWNED SKINS */}
+              <div className="flex gap-8 mb-8">
+                <div className="flex-1">
+                  <h3 className="text-yellow-400 text-sm font-bold mb-4 border-b border-yellow-500/30 pb-2">MY SKINS</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {SKINS.filter(s => ownedSkins.includes(s.id)).map(s => (
+                      <div key={s.id}
+                        className={`p-2 border rounded text-xs text-center cursor-pointer transition-all
+                           ${currentSkin === s.id ? 'bg-yellow-500/20 border-yellow-400 text-yellow-100' : 'border-gray-700 text-gray-500 hover:border-gray-500'}
+                         `}
+                        onClick={() => handleSelectSkin(s)}>
+                        {s.name}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
+
+                <div className="flex-1">
+                  <h3 className="text-purple-400 text-sm font-bold mb-4 border-b border-purple-500/30 pb-2">MY SOUNDS</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {SOUNDS.filter(s => ownedSounds.includes(s.id)).map(s => (
+                      <div key={s.id}
+                        className={`p-2 border rounded text-xs text-center cursor-pointer transition-all
+                           ${currentSound === s.id ? 'bg-purple-500/20 border-purple-400 text-purple-100' : 'border-gray-700 text-gray-500 hover:border-gray-500'}
+                         `}
+                        onClick={() => handleSelectSound(s)}>
+                        {s.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <button className="menu-btn" style={{ marginTop: '20px', width: '200px', borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
         </div>
       )}
 
       {/* --- GAME SCREEN --- */}
       {screen === 'game' && (
         <>
-          <div className="scoreboard-container">
-            <div className="stat-box">
-              <div className="stat-label">{gameMode === 'arcade' ? 'TIEMPO' : gameMode === 'survival' ? 'VIDAS' : gameMode === 'entrenamiento' ? 'TIEMPO' : 'META'}</div>
-              <div className="stat-val">{gameMode === 'arcade' ? timer : gameMode === 'survival' ? '❤️'.repeat(lives) : gameMode === 'entrenamiento' ? '∞' : `${notesHit}/50`}</div>
+          {/* HUD / SCOREBOARD */}
+          <div className="fixed top-0 left-0 w-full p-2 z-30 flex justify-between items-start pointer-events-none">
+            <div className="flex gap-2">
+              <div className="crystal-panel px-4 py-2 flex flex-col items-center min-w-[80px]">
+                <div className="text-[10px] text-gray-400 font-mono uppercase tracking-wider">{gameMode === 'arcade' ? 'TIME' : gameMode === 'survival' ? 'LIVES' : gameMode === 'entrenamiento' ? 'TIME' : 'GOAL'}</div>
+                <div className={`text-xl font-bold font-mono ${gameMode === 'survival' ? 'text-red-500' : 'text-white'}`}>
+                  {gameMode === 'arcade' ? timer : gameMode === 'survival' ? '❤️'.repeat(lives) : gameMode === 'entrenamiento' ? '∞' : `${notesHit}/50`}
+                </div>
+              </div>
+
+              <div className="crystal-panel px-4 py-2 flex flex-col items-center min-w-[100px]">
+                <div className="text-[10px] text-gray-400 font-mono uppercase tracking-wider">SCORE</div>
+                <div className="text-xl font-bold font-mono neon-text-green">
+                  {gameMode === 'sayoya' ? timer.toFixed(1) : score}
+                </div>
+              </div>
             </div>
-            <div className="stat-box">
-              <div className="stat-label">PUNTOS</div>
-              <div className="stat-val" style={{ color: 'var(--neon-green)' }}>{gameMode === 'sayoya' ? timer.toFixed(1) : score}</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-label">MONEDAS</div>
-              <div className="stat-val" style={{ color: 'gold' }}>🪙 {coins}</div>
-            </div>
-            <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-              <button className="pause-btn" style={{ position: 'relative', right: 'auto', transform: 'none', borderColor: isMicActive ? '#0f0' : '#fff', color: isMicActive ? '#0f0' : '#fff' }} onClick={toggleMic}>
-                {isMicActive ? <Mic size={14} /> : <MicOff size={14} />}
+
+            <div className="flex gap-2 pointer-events-auto">
+              <div className="crystal-panel px-3 py-2 flex items-center gap-2">
+                <span>🪙</span>
+                <span className="text-yellow-400 font-bold font-mono">{coins}</span>
+              </div>
+
+              <button
+                className={`crystal-panel w-10 h-10 flex items-center justify-center transition-all ${isMicActive ? 'border-green-500 text-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'hover:bg-white/10'}`}
+                onClick={toggleMic}
+              >
+                {isMicActive ? <Mic size={18} /> : <MicOff size={18} />}
               </button>
-              <button className="pause-btn" style={{ position: 'relative', right: 'auto', transform: 'none' }} onClick={togglePause}>⏸</button>
+
+              <button
+                className="crystal-panel w-10 h-10 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all text-white"
+                onClick={togglePause}
+              >
+                <span className="text-xl">⏸</span>
+              </button>
             </div>
           </div>
 
@@ -1828,56 +2056,70 @@ export default function App() {
             </div>
 
             {gameState === 'paused' && (
-              <div className="full-screen-menu" style={{ borderRadius: '0', background: 'rgba(0,0,0,0.85)' }}>
-                <h2 style={{ color: '#fff', textShadow: '0 0 10px #fff', marginBottom: '20px' }}>PAUSA</h2>
-                <button className="menu-btn" style={{ borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, togglePause)}>CONTINUAR</button>
-                <button className="menu-btn" style={{ borderColor: '#f00', color: '#f00' }} onClick={(e) => handleButtonClick(e, quitGame)}>SALIR AL MENÚ</button>
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
+                <div className="crystal-panel p-8 flex flex-col items-center gap-6 min-w-[300px]">
+                  <h2 className="text-4xl font-black text-white tracking-widest uppercase mb-4">PAUSED</h2>
+                  <button className="btn-gaming w-full" onClick={(e) => handleButtonClick(e, togglePause)}>RESUME</button>
+                  <button className="btn-gaming-secondary w-full border-red-500/50 text-red-400 hover:border-red-500" onClick={(e) => handleButtonClick(e, quitGame)}>EXIT GAME</button>
+                </div>
               </div>
             )}
 
             {(gameState === 'ready' || gameState === 'gameOver') && (
-              <div className="full-screen-menu" style={{ borderRadius: '0', background: 'rgba(0,0,0,0.85)' }}>
-                <h2 style={{ color: gameState === 'ready' ? '#fff' : (message.includes('DESBLOQUEADO') ? '#0f0' : '#f00'), textShadow: '0 0 10px currentColor', fontSize: '24px', marginBottom: '20px' }}>
-                  {gameState === 'ready' ? '¿LISTO?' : (message && (message.includes('DESBLOQUEADO') || message.includes('SUPERADO')) ? '¡NIVEL SUPERADO!' : 'FIN DEL JUEGO')}
-                </h2>
-                <p style={{ color: '#fff', fontSize: '12px', marginBottom: '30px', textTransform: 'uppercase' }}>
-                  {gameState === 'ready' ?
-                    (gameMode === 'arcade' ? 'Meta: 8500 Pts' : gameMode === 'survival' ? `Récord: ${localStorage.getItem('mb_hs_survival') || 0}` : 'Velocidad pura') :
-                    (message || `Puntuación Final: ${score}`)
-                  }
-                </p>
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md animate-fade-in">
+                <div className="crystal-panel p-10 flex flex-col items-center gap-6 max-w-lg w-full relative overflow-hidden">
+                  {/* Background Glow */}
+                  <div className={`absolute inset-0 opacity-20 pointer-events-none ${gameState === 'gameOver' && !message.includes('DESBLOQUEADO') ? 'bg-red-900' : 'bg-green-900'}`}></div>
 
-                {/* AI COACH DISPLAY */}
-                {aiFeedback && gameState === 'gameOver' && (
-                  <div className="ai-box">
-                    <Bot size={20} style={{ marginBottom: 5 }} /> <br />
-                    {aiFeedback}
+                  <h2 className={`text-4xl font-black tracking-tighter uppercase relative z-10 text-center
+                    ${gameState === 'ready' ? 'text-white' : (message && (message.includes('DESBLOQUEADO') || message.includes('SUPERADO')) ? 'neon-text-green' : 'neon-text-red')}
+                  `}>
+                    {gameState === 'ready' ? 'SYSTEM READY?' : (message && (message.includes('DESBLOQUEADO') || message.includes('SUPERADO')) ? 'STAGE CLEARED' : 'GAME OVER')}
+                  </h2>
+
+                  <div className="text-sm text-gray-300 font-mono text-center tracking-widest relative z-10">
+                    {gameState === 'ready' ?
+                      (gameMode === 'arcade' ? 'TARGET: 8500 PTS' : gameMode === 'survival' ? `BEST: ${localStorage.getItem('mb_hs_survival') || 0}` : 'SPEED RUN MODE') :
+                      (message || `FINAL SCORE: ${score}`)
+                    }
                   </div>
-                )}
 
-                {gameState === 'ready' ? (
-                  <>
-                    <button className="menu-btn" style={{ borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => startGame())}>JUGAR</button>
-                    <button className="menu-btn" style={{ borderColor: '#555', color: '#aaa', marginTop: '10px' }} onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
-                  </>
-                ) : (
-                  <>
-                    {/* AI COACH BUTTON */}
-                    {gameState === 'gameOver' && !aiFeedback && !isLoadingAI && (
-                      <button className="menu-btn" style={{ borderColor: '#9933ff', color: '#9933ff', marginBottom: '10px', fontSize: '12px' }} onClick={(e) => handleButtonClick(e, callGeminiCoach)}>
-                        <Sparkles size={14} /> CONSEJO DEL COACH AI
-                      </button>
+                  {/* AI COACH DISPLAY */}
+                  {aiFeedback && gameState === 'gameOver' && (
+                    <div className="p-4 bg-purple-900/30 border border-purple-500/50 rounded-lg text-xs text-purple-200 font-mono w-full relative z-10 animate-fade-in">
+                      <div className="flex items-center gap-2 mb-2 text-purple-400 font-bold border-b border-purple-500/30 pb-1">
+                        <Bot size={16} /> AI COACH ANALYSIS
+                      </div>
+                      {aiFeedback}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-3 w-full relative z-10 mt-4">
+                    {gameState === 'ready' ? (
+                      <>
+                        <button className="btn-gaming w-full py-4 text-xl shimmer" onClick={(e) => handleButtonClick(e, () => startGame())}>START MISSION</button>
+                        <button className="text-gray-500 hover:text-white text-sm tracking-widest uppercase mt-2" onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>ABORT</button>
+                      </>
+                    ) : (
+                      <>
+                        {/* AI COACH BUTTON */}
+                        {gameState === 'gameOver' && !aiFeedback && !isLoadingAI && (
+                          <button className="btn-gaming-secondary w-full border-purple-500 text-purple-400 hover:text-white" onClick={(e) => handleButtonClick(e, callGeminiCoach)}>
+                            <span className="flex items-center justify-center gap-2"><Sparkles size={16} /> ANALYZE PERFORMANCE</span>
+                          </button>
+                        )}
+
+                        {isLoadingAI && <div className="text-center text-purple-400 py-2 animate-pulse font-mono text-xs">PROCESSING DATA WITH GEMINI AI...</div>}
+
+                        {gameState === 'gameOver' && gameMode === 'arcade' && score >= 8500 && (
+                          <button className="btn-gaming w-full border-green-500 text-green-400" onClick={(e) => handleButtonClick(e, handleNextLevel)}>NEXT STAGE</button>
+                        )}
+                        <button className="btn-gaming-secondary w-full" onClick={(e) => handleButtonClick(e, () => startGame())}>RETRY</button>
+                        <button className="text-gray-500 hover:text-white text-sm tracking-widest uppercase mt-2 text-center" onClick={(e) => handleButtonClick(e, quitGame)}>RETURN TO BASE</button>
+                      </>
                     )}
-
-                    {isLoadingAI && <div style={{ color: '#9933ff', marginBottom: '10px' }}>Analizando partida... 🤖</div>}
-
-                    {gameState === 'gameOver' && gameMode === 'arcade' && score >= 8500 && (
-                      <button className="menu-btn" style={{ borderColor: '#0f0', color: '#0f0', marginBottom: '10px' }} onClick={(e) => handleButtonClick(e, handleNextLevel)}>SIGUIENTE NIVEL</button>
-                    )}
-                    <button className="menu-btn" style={{ borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => startGame())}>REINTENTAR</button>
-                    <button className="menu-btn" style={{ borderColor: '#555', color: '#aaa', marginTop: '10px' }} onClick={(e) => handleButtonClick(e, quitGame)}>SALIR</button>
-                  </>
-                )}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1890,17 +2132,20 @@ export default function App() {
             ))}
           </div>
 
-          <div className="controls-container">
+          <div className="fixed bottom-0 left-0 w-full p-2 flex justify-center gap-1 z-30 pb-4 bg-gradient-to-t from-black to-transparent">
             {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map((key) => (
               <button key={key}
-                className="key-btn hit-zone-color"
+                className="relative h-32 flex-1 max-w-[80px] rounded-b-lg border-b-4 border-r-2 border-l-2 bg-white/10 backdrop-blur active:scale-95 transition-all duration-100 flex items-end justify-center pb-4 text-white font-bold text-lg
+                  shadow-[0_4px_0_rgba(0,0,0,0.5)] active:shadow-none active:translate-y-[4px]
+                "
                 style={{
-                  borderColor: !colorMode ? 'currentColor' : COLORS[key],
-                  color: !colorMode ? 'inherit' : COLORS[key],
+                  borderColor: !colorMode ? '#444' : COLORS[key],
+                  color: !colorMode ? '#aaa' : '#fff',
+                  background: !colorMode ? 'linear-gradient(to bottom, #222, #111)' : `linear-gradient(to bottom, rgba(255,255,255,0.1), ${COLORS[key]}40)`,
                   boxShadow: `0 4px 0 ${!colorMode ? '#000' : COLORS[key]}`
                 }}
-                onMouseDown={(e) => { handleInput(key); e.currentTarget.classList.add('active'); setTimeout(() => e.target.classList.remove('active'), 100); }}
-                onTouchStart={(e) => { e.preventDefault(); handleInput(key); e.currentTarget.classList.add('active'); setTimeout(() => e.target.classList.remove('active'), 100); }}
+                onMouseDown={(e) => { handleInput(key); e.currentTarget.classList.add('brightness-150'); setTimeout(() => e.target.classList.remove('brightness-150'), 100); }}
+                onTouchStart={(e) => { e.preventDefault(); handleInput(key); e.currentTarget.classList.add('brightness-150'); setTimeout(() => e.target.classList.remove('brightness-150'), 100); }}
               >
                 {key === 'C' ? 'Do' : key === 'D' ? 'Re' : key === 'E' ? 'Mi' : key === 'F' ? 'Fa' : key === 'G' ? 'Sol' : key === 'A' ? 'La' : 'Si'}
               </button>
