@@ -414,6 +414,14 @@ export default function App() {
   const [colorMode, setColorMode] = useState(false);
   const [detectedPitch, setDetectedPitch] = useState(null); // Estado para mostrar la nota detectada en UI
 
+  // --- TRAINING MODE STATE ---
+  const [trainingConfig, setTrainingConfig] = useState({
+    // clef: 'treble', // Removed single clef restriction
+    showTreble: true, // UI Toggle
+    showBass: false,  // UI Toggle
+    selectedIndices: []
+  });
+
   // --- MIC STATES & REFS ---
   const [isMicActive, setIsMicActive] = useState(false);
   const analyserRef = useRef(null);
@@ -705,6 +713,19 @@ export default function App() {
   };
 
   const spawnNote = useCallback(() => {
+    // --- MODO ENTRENAMIENTO ---
+    if (gameMode === 'entrenamiento') {
+      const options = trainingConfig.selectedIndices;
+      if (options && options.length > 0) {
+        const randIndex = options[Math.floor(Math.random() * options.length)];
+        setCurrentNote(NOTES_DATA[randIndex]);
+      } else {
+        // Fallback si no hay notas seleccionadas (aunque la UI no debería permitirlo)
+        setCurrentNote(NOTES_DATA[0]);
+      }
+      return;
+    }
+
     let min = 0;
     let max = 0;
 
@@ -726,7 +747,7 @@ export default function App() {
 
     const idx = Math.floor(Math.random() * (max - min + 1)) + min;
     setCurrentNote(NOTES_DATA[idx]);
-  }, [gameMode, level]);
+  }, [gameMode, level, trainingConfig]);
 
   const startGame = (customLvl) => {
     initAudio();
@@ -1408,6 +1429,17 @@ export default function App() {
             <button className="menu-btn" style={{ borderColor: '#0f0', color: '#0f0', marginBottom: 5 }} onClick={(e) => handleButtonClick(e, () => setScreen('levelSelect'))}>ARCADE</button>
             <div style={{ fontSize: '9px', color: '#aaa', marginBottom: 15 }}>PROGRESO: {colorMode ? 'MODO NOOB' : 'MODO PRO'}</div>
 
+            <div style={{ fontSize: '9px', color: '#aaa', marginBottom: 15 }}>PROGRESO: {colorMode ? 'MODO NOOB' : 'MODO PRO'}</div>
+
+            <button className="menu-btn" style={{ borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => {
+              // Reset training config default if empty needed, or keep previous
+              if (trainingConfig.selectedIndices.length === 0) {
+                // Pre-select C Major Treble by default to be nice
+                setTrainingConfig({ showTreble: true, showBass: false, selectedIndices: [0, 1, 2, 3, 4, 5, 6] });
+              }
+              setScreen('trainingSetup');
+            })}>ENTRENAMIENTO 🎓</button>
+
             <button className="menu-btn" style={{ borderColor: '#f00', color: '#f00' }} onClick={(e) => handleButtonClick(e, () => { setGameMode('survival'); setScreen('game'); setGameState('ready'); })}>SUPERVIVENCIA</button>
             <button className="menu-btn" style={{ borderColor: '#0ff', color: '#0ff' }} onClick={(e) => handleButtonClick(e, () => { setGameMode('sayoya'); setScreen('game'); setGameState('ready'); })}>RETO SAYOYA</button>
             <div style={{ borderTop: '2px solid #333', width: '80%', margin: '15px 0' }}></div>
@@ -1454,6 +1486,159 @@ export default function App() {
             })}
           </div>
           <button className="menu-btn" style={{ marginTop: '20px', width: '200px', borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
+        </div>
+      )}
+
+      {screen === 'trainingSetup' && (
+        <div className="full-screen-menu" style={{ background: 'rgba(0,0,0,0.95)' }}>
+          <h1 style={{ fontSize: '18px', marginBottom: '10px', color: '#fff' }}>ENTRENAMIENTO</h1>
+          <p style={{ fontSize: '10px', color: '#aaa', marginBottom: '20px' }}>Selecciona las notas a practicar (Mezcla claves si quieres).</p>
+
+          {/* CLEF VISIBILITY TOGGLES */}
+          <div style={{ display: 'flex', gap: 20, marginBottom: 10 }}>
+            <button
+              className="menu-btn"
+              style={{
+                width: '120px', padding: '10px', fontSize: '12px',
+                borderColor: trainingConfig.showTreble ? '#0f0' : '#555',
+                color: trainingConfig.showTreble ? '#0f0' : '#555',
+                opacity: trainingConfig.showTreble ? 1 : 0.6
+              }}
+              onClick={() => setTrainingConfig(prev => ({ ...prev, showTreble: !prev.showTreble }))}
+            >
+              SOL 𝄞 {trainingConfig.showTreble ? 'ON' : 'OFF'}
+            </button>
+            <button
+              className="menu-btn"
+              style={{
+                width: '120px', padding: '10px', fontSize: '12px',
+                borderColor: trainingConfig.showBass ? '#0f0' : '#555',
+                color: trainingConfig.showBass ? '#0f0' : '#555',
+                opacity: trainingConfig.showBass ? 1 : 0.6
+              }}
+              onClick={() => setTrainingConfig(prev => ({ ...prev, showBass: !prev.showBass }))}
+            >
+              FA 𝄢 {trainingConfig.showBass ? 'ON' : 'OFF'}
+            </button>
+          </div>
+
+          {/* NOTE SELECTOR GRID */}
+          <div className="scroll-area" style={{ maxHeight: '50vh', width: '90%' }}>
+
+            {/* TREBLE SECTION */}
+            {trainingConfig.showTreble && (
+              <>
+                <div style={{ fontSize: '12px', color: '#0f0', margin: '10px 0', borderBottom: '1px solid #333' }}>CLAVE DE SOL</div>
+                <div className="custom-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                  {NOTES_DATA.map((n, idx) => {
+                    if (n.clef !== 'treble') return null;
+                    const isSelected = trainingConfig.selectedIndices.includes(idx);
+
+                    const getLabel = () => {
+                      const base = n.noteBase || n.note.charAt(0);
+                      const map = { 'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si' };
+                      let octave = '';
+                      // Treble: C-B (4), C2-G2 (5)
+                      if (idx <= 6) octave = '4'; else octave = '5';
+                      return `${map[base]} ${octave}`;
+                    };
+
+                    return (
+                      <div key={idx} className={`custom-item ${isSelected ? 'selected' : ''}`}
+                        style={{ borderColor: isSelected ? '#0f0' : '#555', opacity: isSelected ? 1 : 0.6 }}
+                        onClick={() => {
+                          setTrainingConfig(prev => {
+                            const newIndices = prev.selectedIndices.includes(idx) ? prev.selectedIndices.filter(i => i !== idx) : [...prev.selectedIndices, idx];
+                            return { ...prev, selectedIndices: newIndices };
+                          });
+                        }}>
+                        <span>{getLabel()}</span>
+                        <span style={{ fontSize: '8px', color: '#aaa' }}>{n.note}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {/* BASS SECTION */}
+            {trainingConfig.showBass && (
+              <>
+                <div style={{ fontSize: '12px', color: '#0f0', margin: '20px 0 10px 0', borderBottom: '1px solid #333' }}>CLAVE DE FA</div>
+                <div className="custom-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                  {NOTES_DATA.map((n, idx) => {
+                    if (n.clef !== 'bass') return null;
+                    const isSelected = trainingConfig.selectedIndices.includes(idx);
+
+                    const getLabel = () => {
+                      const base = n.noteBase || n.note.charAt(0);
+                      const map = { 'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si' };
+                      // Bass: E2-B2 (2), C3-B3 (3)
+                      let octave = '';
+                      if (n.note.includes('2')) octave = '2';
+                      else if (n.note.includes('3')) octave = '3';
+                      return `${map[base]} ${octave}`;
+                    };
+
+                    return (
+                      <div key={idx} className={`custom-item ${isSelected ? 'selected' : ''}`}
+                        style={{ borderColor: isSelected ? '#0f0' : '#555', opacity: isSelected ? 1 : 0.6 }}
+                        onClick={() => {
+                          setTrainingConfig(prev => {
+                            const newIndices = prev.selectedIndices.includes(idx) ? prev.selectedIndices.filter(i => i !== idx) : [...prev.selectedIndices, idx];
+                            return { ...prev, selectedIndices: newIndices };
+                          });
+                        }}>
+                        <span>{getLabel()}</span>
+                        <span style={{ fontSize: '8px', color: '#aaa' }}>{n.note}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+            <button className="menu-btn" style={{ width: 'auto', padding: '10px', fontSize: '10px', borderColor: '#aaa', color: '#aaa' }}
+              onClick={() => {
+                // Select ALL visible
+                let toAdd = [];
+                if (trainingConfig.showTreble) toAdd = [...toAdd, ...NOTES_DATA.map((n, i) => n.clef === 'treble' ? i : -1).filter(i => i !== -1)];
+                if (trainingConfig.showBass) toAdd = [...toAdd, ...NOTES_DATA.map((n, i) => n.clef === 'bass' ? i : -1).filter(i => i !== -1)];
+
+                setTrainingConfig(prev => ({ ...prev, selectedIndices: [...new Set([...prev.selectedIndices, ...toAdd])] }));
+              }}>
+              TODAS (VISIBLES)
+            </button>
+            <button className="menu-btn" style={{ width: 'auto', padding: '10px', fontSize: '10px', borderColor: '#aaa', color: '#aaa' }}
+              onClick={() => setTrainingConfig(prev => ({ ...prev, selectedIndices: [] }))}>
+              BORRAR SELECCIÓN
+            </button>
+          </div>
+
+          <button
+            className="menu-btn"
+            style={{
+              marginTop: '20px',
+              borderColor: trainingConfig.selectedIndices.length > 0 ? '#ffcc00' : '#333',
+              color: trainingConfig.selectedIndices.length > 0 ? '#ffcc00' : '#333',
+              cursor: trainingConfig.selectedIndices.length > 0 ? 'pointer' : 'not-allowed'
+            }}
+            onClick={(e) => {
+              if (trainingConfig.selectedIndices.length > 0) {
+                handleButtonClick(e, () => {
+                  setGameMode('entrenamiento');
+                  setScreen('game');
+                  setGameState('ready');
+                });
+              }
+            }}
+          >
+            ¡COMENZAR!
+          </button>
+
+          <button className="menu-btn" style={{ marginTop: '10px', width: '200px', borderColor: '#fff', color: '#fff' }} onClick={(e) => handleButtonClick(e, () => setScreen('modeSelect'))}>VOLVER</button>
         </div>
       )}
 
@@ -1555,8 +1740,8 @@ export default function App() {
         <>
           <div className="scoreboard-container">
             <div className="stat-box">
-              <div className="stat-label">{gameMode === 'arcade' ? 'TIEMPO' : gameMode === 'survival' ? 'VIDAS' : 'META'}</div>
-              <div className="stat-val">{gameMode === 'arcade' ? timer : gameMode === 'survival' ? '❤️'.repeat(lives) : `${notesHit}/50`}</div>
+              <div className="stat-label">{gameMode === 'arcade' ? 'TIEMPO' : gameMode === 'survival' ? 'VIDAS' : gameMode === 'entrenamiento' ? 'TIEMPO' : 'META'}</div>
+              <div className="stat-val">{gameMode === 'arcade' ? timer : gameMode === 'survival' ? '❤️'.repeat(lives) : gameMode === 'entrenamiento' ? '∞' : `${notesHit}/50`}</div>
             </div>
             <div className="stat-box">
               <div className="stat-label">PUNTOS</div>
