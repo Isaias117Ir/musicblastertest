@@ -4,8 +4,9 @@ import {
   Skull, MousePointer2, Bomb, Activity, Triangle, Hexagon, X, Smile, Divide,
   Code2, Globe, Rocket, Gem, Disc, Clock, Settings, Cookie, Atom, Biohazard,
   User, Plus, Trash2, LogOut, Bot, MessageSquare, Trophy, Medal, Crown, Star,
-  Target, ZapOff, Shield, Gift, Mic, MicOff, BookOpen
+  Target, ZapOff, Shield, Gift, Mic, MicOff, BookOpen, Globe2
 } from 'lucide-react';
+import { supabase } from './supabaseClient';
 
 // --- CONFIGURACIÓN GEMINI API ---
 const apiKey = "AIzaSyCQ0xvdX16Z6Rd12G2gyLvoBXTrb-qOKuE"; // La clave se inyectará en tiempo de ejecución
@@ -256,7 +257,8 @@ const DEFAULT_PROFILE_DATA = {
   highScore: 0,
   unlockedAchievements: [],
   gamesPlayed: 0,
-  totalLosses: 0
+  totalLosses: 0,
+  masterVolume: 0.5
 };
 
 export default function App() {
@@ -268,6 +270,7 @@ export default function App() {
     const legacyCoins = parseInt(localStorage.getItem('mb_coins') || '0');
     const legacySkins = JSON.parse(localStorage.getItem('mb_owned_skins') || '["skin-1"]');
     const legacyMax = parseInt(localStorage.getItem('mb_max_unlocked') || '1');
+    const legacyVol = parseFloat(localStorage.getItem('mb_master_volume') || '0.5');
 
     return {
       'guest': {
@@ -276,6 +279,7 @@ export default function App() {
         ownedSkins: legacySkins,
         maxLevelNoob: legacyMax,
         maxLevelPro: legacyMax,
+        masterVolume: legacyVol
       }
     };
   });
@@ -296,6 +300,7 @@ export default function App() {
   const [unlockedAchievements, setUnlockedAchievements] = useState(activeProfile.unlockedAchievements || []);
   const [gamesPlayed, setGamesPlayed] = useState(activeProfile.gamesPlayed || 0);
   const [totalLosses, setTotalLosses] = useState(activeProfile.totalLosses || 0);
+  const [masterVolume, setMasterVolume] = useState(activeProfile.masterVolume !== undefined ? activeProfile.masterVolume : 0.5);
 
   const [newProfileName, setNewProfileName] = useState("");
 
@@ -317,13 +322,14 @@ export default function App() {
           highScore,
           unlockedAchievements,
           gamesPlayed,
-          totalLosses
+          totalLosses,
+          masterVolume
         }
       };
       localStorage.setItem('mb_profiles_v3', JSON.stringify(updated));
       return updated;
     });
-  }, [coins, ownedSkins, ownedSounds, currentSkin, currentSound, currentWallpaper, maxLevelNoob, maxLevelPro, showParticles, highScore, unlockedAchievements, gamesPlayed, totalLosses]);
+  }, [coins, ownedSkins, ownedSounds, currentSkin, currentSound, currentWallpaper, maxLevelNoob, maxLevelPro, showParticles, highScore, unlockedAchievements, gamesPlayed, totalLosses, masterVolume]);
 
   useEffect(() => {
     localStorage.setItem('mb_active_profile_id', activeProfileId);
@@ -346,6 +352,7 @@ export default function App() {
       setUnlockedAchievements(profile.unlockedAchievements || []);
       setGamesPlayed(profile.gamesPlayed || 0);
       setTotalLosses(profile.totalLosses || 0);
+      setMasterVolume(profile.masterVolume !== undefined ? profile.masterVolume : 0.5);
       setScreen('modeSelect');
     }
   };
@@ -421,6 +428,51 @@ export default function App() {
     showBass: false,  // UI Toggle
     selectedIndices: []
   });
+
+  // --- SUPABASE LEADERBOARD ---
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+
+  const fetchLeaderboard = async () => {
+    setLoadingLeaderboard(true);
+    try {
+      const { data, error } = await supabase
+        .from('scores')
+        .select('*')
+        .order('score', { ascending: false })
+        .limit(20);
+
+      if (error) console.error('Error fetching leaderboard:', error);
+      else setLeaderboard(data);
+    } catch (err) {
+      console.error('Unexpected error fetching leaderboard:', err);
+    } finally {
+      setLoadingLeaderboard(false);
+    }
+  };
+
+  const uploadScore = async (finalScore) => {
+    // Only upload if score > 0
+    if (finalScore <= 0) return;
+
+    try {
+      const { error } = await supabase
+        .from('scores')
+        .insert([
+          { player_name: activeProfile.name, score: finalScore, game_mode: gameMode }
+        ]);
+
+      if (error) console.error('Error uploading score:', error);
+    } catch (err) {
+      console.error('Unexpected error uploading score:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (screen === 'leaderboard') {
+      fetchLeaderboard();
+    }
+  }, [screen]);
 
   // --- MIC STATES & REFS ---
   const [isMicActive, setIsMicActive] = useState(false);
@@ -603,9 +655,14 @@ export default function App() {
       const filter = ctx.createBiquadFilter();
       filter.frequency.value = 22050;
 
+      // Master Volume Gain
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = masterVolume;
+
       osc.connect(filter);
       filter.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(masterGain);
+      masterGain.connect(ctx.destination);
 
       let dur = 0.5;
       const selectedSound = forceSoundId || currentSound;
@@ -946,6 +1003,11 @@ export default function App() {
       triggerConfetti();
     }
     setMessage(endMsg);
+
+    // Upload Score to Supabase
+    if (gameMode === 'arcade' || gameMode === 'survival') {
+      uploadScore(score);
+    }
   };
 
   const handleNextLevel = () => {
@@ -1337,7 +1399,7 @@ export default function App() {
             <h1 className="text-2xl text-white font-bold tracking-widest border-b border-white/20 pb-4 mb-4 uppercase">System Visuals</h1>
 
             <button
-              className="btn-gaming w-80 h-24 flex flex-col items-center justify-center gap-2 group"
+              className="btn-gaming w-full max-w-xs h-24 flex flex-col items-center justify-center gap-2 group"
               onClick={(e) => handleButtonClick(e, () => { setColorMode(false); setScreen('modeSelect'); })}
             >
               <span className="text-lg group-hover:text-black">PRO MODE</span>
@@ -1345,7 +1407,7 @@ export default function App() {
             </button>
 
             <button
-              className="btn-gaming-secondary w-80 h-24 flex flex-col items-center justify-center gap-2 group"
+              className="btn-gaming-secondary w-full max-w-xs h-24 flex flex-col items-center justify-center gap-2 group"
               style={{ borderColor: 'var(--accent-neon)', color: 'var(--accent-neon)' }}
               onClick={(e) => handleButtonClick(e, () => { setColorMode(true); setScreen('modeSelect'); })}
             >
@@ -1467,22 +1529,39 @@ export default function App() {
                     <th className="p-4 text-center">#</th>
                     <th className="p-4 text-left">AGENT</th>
                     <th className="p-4 text-center">SCORE</th>
-                    <th className="p-4 text-center">LEVEL</th>
+                    <th className="p-4 text-center">MODE</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
-                  {Object.values(profiles).sort((a, b) => (b.highScore || 0) - (a.highScore || 0)).map((p, i) => (
-                    <tr key={i} className={`text-gray-300 hover:bg-white/5 transition-colors
-                      ${i === 0 ? 'text-yellow-400 font-bold bg-yellow-400/5' : ''}
-                      ${i === 1 ? 'text-gray-300' : ''}
-                      ${i === 2 ? 'text-orange-400' : ''}
-                    `}>
-                      <td className="p-4 text-center font-mono opacity-50">{i + 1}</td>
-                      <td className="p-4">{p.name}</td>
-                      <td className="p-4 text-center font-mono text-green-400">{p.highScore || 0}</td>
-                      <td className="p-4 text-center font-mono text-blue-400">{p.maxLevelNoob + p.maxLevelPro}</td>
+                  {loadingLeaderboard ? (
+                    <tr>
+                      <td colSpan="4" className="p-8 text-center text-gray-500 animate-pulse">
+                        CONNECTING TO GLOBAL NETWORK...
+                      </td>
                     </tr>
-                  ))}
+                  ) : leaderboard.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="p-8 text-center text-gray-500">
+                        NO GLOBAL DATA FOUND
+                      </td>
+                    </tr>
+                  ) : (
+                    leaderboard.map((entry, i) => (
+                      <tr key={entry.id || i} className={`text-gray-300 hover:bg-white/5 transition-colors
+                        ${i === 0 ? 'text-yellow-400 font-bold bg-yellow-400/5' : ''}
+                        ${i === 1 ? 'text-gray-300' : ''}
+                        ${i === 2 ? 'text-orange-400' : ''}
+                      `}>
+                        <td className="p-4 text-center font-mono opacity-50">{i + 1}</td>
+                        <td className="p-4 flex items-center gap-2">
+                          {i === 0 && <Crown size={14} />}
+                          {entry.player_name}
+                        </td>
+                        <td className="p-4 text-center font-mono text-green-400">{entry.score}</td>
+                        <td className="p-4 text-center font-mono text-blue-400 text-xs uppercase">{entry.game_mode}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -1500,8 +1579,8 @@ export default function App() {
       )}
 
       {screen === 'modeSelect' && (
-        <div className="full-screen-menu z-20">
-          <div className="w-full max-w-5xl p-4 flex flex-col items-center h-full justify-center">
+        <div className="full-screen-menu z-20 overflow-y-auto">
+          <div className="w-full max-w-5xl p-4 flex flex-col items-center min-h-full justify-center">
             <h1 className="text-4xl font-black mb-8 text-white tracking-[0.2em] uppercase neon-text-blue" style={{ fontFamily: 'var(--font-gaming)' }}>
               MODE SELECT
             </h1>
@@ -1563,7 +1642,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-4 w-full">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
               <button className="btn-gaming text-sm py-4 flex flex-col items-center gap-2 border-yellow-400 text-yellow-400" onClick={(e) => handleButtonClick(e, () => setScreen('store'))}>
                 <span className="text-lg">STORE</span>
               </button>
@@ -1596,7 +1675,7 @@ export default function App() {
               PATH: {colorMode ? <span className="text-yellow-400">NEON (NOOB)</span> : <span className="text-white">CLASSIC (PRO)</span>}
             </h2>
 
-            <div className="grid grid-cols-4 md:grid-cols-5 gap-4 w-full overflow-y-auto pr-2 custom-scrollbar" style={{ maxHeight: '70vh' }}>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 w-full overflow-y-auto pr-2 custom-scrollbar" style={{ maxHeight: '70vh' }}>
               {Array.from({ length: 20 }).map((_, i) => {
                 const lvlNum = i + 1;
                 const currentMax = colorMode ? maxLevelNoob : maxLevelPro;
@@ -1873,6 +1952,31 @@ export default function App() {
             </header>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+              {/* MASTER VOLUME */}
+              <div className="crystal-panel p-4 mb-4 flex flex-col gap-2 bg-blue-900/10 border-blue-500/30">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-white font-bold">MASTER VOLUME</h3>
+                    <p className="text-xs text-gray-400">Adjust system audio levels</p>
+                  </div>
+                  <div className="font-mono text-cyan-400 font-bold">{Math.round(masterVolume * 100)}%</div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={masterVolume}
+                  className="w-full accent-cyan-400 cursor-pointer"
+                  onChange={(e) => {
+                    const newVol = parseFloat(e.target.value);
+                    setMasterVolume(newVol);
+                    // Preview sound
+                    if (Math.random() > 0.8) playTone(440);
+                  }}
+                />
+              </div>
+
               {/* PARTICLES */}
               <div className="crystal-panel p-4 mb-8 flex justify-between items-center bg-purple-900/10 border-purple-500/30">
                 <div>
@@ -1889,7 +1993,7 @@ export default function App() {
 
               {/* WALLPAPERS */}
               <h3 className="neon-text-blue text-sm font-bold mb-4 border-b border-blue-500/30 pb-2">HOLOGRAPHIC BACKGROUNDS</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
                 {WALLPAPERS.map(w => (
                   <div key={w.id}
                     className={`h-24 rounded-lg border cursor-pointer relative overflow-hidden group transition-all duration-300
